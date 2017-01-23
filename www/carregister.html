@@ -217,17 +217,17 @@
 										<div class="col-md-9 col-sm-9 col-xs-12">
 											<div class="radio">
 												<label>
-													<input type="radio" class="flat"  name="aracharekettipi"> Teslim Al
+													<input type="radio" class="flat"  name="aracharekettipi" value="1"> Teslim Al
 												</label>
 											</div>
 											<div class="radio">
 												<label>
-													<input type="radio" class="flat" name="aracharekettipi"> Teslim Et
+													<input type="radio" class="flat" name="aracharekettipi" value="2"> Teslim Et
 												</label>
 											</div>
 											<div class="radio">
 												<label>
-													<input type="radio" class="flat" name="aracharekettipi" value="yakital"> Yakıt Al
+													<input type="radio" class="flat" name="aracharekettipi" value="3"> Yakıt Al
 												</label>
 											</div>
 										</div>
@@ -236,20 +236,26 @@
 										<label class="control-label col-md-3 col-sm-3 col-xs-12">Alınan Yakıt Miktarı (₺)<span class="required">*</span>
 										</label>
 										<div class="col-md-6 col-sm-6 col-xs-12 form-group has-feedback">
-											<input type="text" class="form-control" id="inputSuccess3">
+											<input type="text" class="form-control" id="yakitmiktar">
 											<span class="form-control-feedback right" aria-hidden="true">₺</span>
 										</div>
 									</div>
 									<div class="ln_solid"></div>
 									<div class="form-group">
 										<div class="">
-											<button type="submit" class="btn btn-success btn-lg col-xs-12">KAYDET</button>
+											<button type="submit" onclick="sunucuresponse();" class="btn btn-success btn-lg col-xs-12">KAYDET</button>
 										</div>
 									</div>
 
 								</form>
 							</div>
 						</div>
+
+						<div class="alert alert-success alert-dismissible fade in" role="alert">
+			                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+			                </button>
+			                <strong>Holy guacamole!</strong> Best check yo self, you're not looking too good.
+		                </div>
 					</div>
 				</div>
 			</div>
@@ -281,6 +287,10 @@
 
 	<!-- Tarih Saat -->
 	<script type="text/javascript">
+	localStorage.kullanici = "1";
+
+
+
 		function addZero(i) {
 			if (i < 10) {
 				i = "0" + i;
@@ -301,45 +311,62 @@
 	</script>
 	<!-- Tarih Saat -->
 
-	<!-- Barcode Runner -->
 	<script type="text/javascript">
 		$(function(){
 			$('.aracekbilgi').hide();
 			$('.aracyakitbilgi').hide();
 			$('input[name="aracharekettipi"]').on('ifClicked', function (event) {
-				if (this.value == 'yakital') {
+				if (this.value == '3') {
 					$('.aracyakitbilgi').show();
 				}else{
 					$('.aracyakitbilgi').hide();
 				}
 			});
-
-
-			
-
 		});
-		function ButtonRunner(){ 
-			cordova.plugins.barcodeScanner.scan(
-				function (result) {
-					$('.aracekbilgi').show();
-					$('#AracPlaka').val(result.text);
-				},
-				function (error) {
-					alert("Scanning failed: " + error);
-				},
-				{
-        preferFrontCamera : false, // iOS and Android
-        showFlipCameraButton : false, // iOS and Android
-        showTorchButton : true, // iOS and Android
-        torchOn: true, // Android, launch with the torch switched on (if available)
-        prompt : "Place a barcode inside the scan area", // Android
-        resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
-        formats : "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
-        orientation : "landscape", // Android only (portrait|landscape), default unset so it rotates with the device
-        disableAnimations : true // iOS
-    }
-    );
-		}
+
+	//Barcode Runner
+	function ButtonRunner(){ 
+		cordova.plugins.barcodeScanner.scan(
+			function (result) {
+				$('.aracekbilgi').show();
+				$('#AracPlaka').val(result.text);
+			},
+			function (error) {
+				alert("Scanning failed: " + error);
+			},
+			{
+		        preferFrontCamera : false, // iOS and Android
+		        showFlipCameraButton : false, // iOS and Android
+		        showTorchButton : true, // iOS and Android
+		        torchOn: true, // Android, launch with the torch switched on (if available)
+		        prompt : "Place a barcode inside the scan area", // Android
+		        resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+		        formats : "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+		        orientation : "landscape", // Android only (portrait|landscape), default unset so it rotates with the device
+		        disableAnimations : true // iOS
+		    }
+	    );
+	}
+
+	//Sunucuya Gönder...
+	function sunucuresponse(){
+		var plaka = $("#AracPlaka").val();
+		var harekettipi = $("input[name=aracharekettipi]:checked").val();
+		var yakitmiktar = $("#yakitmiktar").val();
+		var kullanici = localStorage.kullanici;
+
+		$.get('http://www.giltas.com.tr/test.php', 
+			{
+				plaka: plaka, 
+				harekettipi : harekettipi, 
+				yakitmiktar : yakitmiktar, 
+				kullanici : kullanici
+			}, 
+			function (gelen_cevap) {
+				alert(gelen_cevap);
+			});
+		return false;
+	}
 	</script>
 	<!-- Barcode Runner -->
 </body>
