@@ -20,7 +20,9 @@ function AracSorgula(){
 	{       
 		type: "GET",
 		url:  "http://www.giltas.com.tr/gats/test.php",
-		data : {plaka: plaka, 
+		data : {
+			islem : 'hareketkaydet',
+			plaka: plaka, 
 			harekettipi : harekettipi, 
 			yakitmiktar : yakitmiktar, 
 			kullanici : kullanici},
@@ -30,18 +32,28 @@ function AracSorgula(){
 				$('.response-sonuc .alert').html(sonuc.message);
 				$('.barcodebutton').hide();
 				$('.aracekbilgi').hide();
-
 			}
-		})
+	})
 } 
 
 //Barcode Runner
 function BarcodeRunner(){ 
 	cordova.plugins.barcodeScanner.scan(
 		function (result) {
-			$('.aracekbilgi').show();
-			$('#AracPlaka').val(result.text);
-			$('#islemzamani').html(tarih.getDate()+' '+aylar[ay]+' '+yil+' '+gunler[gun]+' '+h+ ":" +m);  
+			$.ajax(
+			{       
+				type: "GET",
+				url:  "http://www.giltas.com.tr/gats/test.php",
+				data : {
+					islem : 'plakasorgula',
+					plaka: result.text},
+					success: function(sonuc){
+						sonuc = JSON.parse(sonuc);
+						$('#AracPlaka').val(sonuc.aracid);
+						$('.sonhareket').html(sonuc.kullaniciid+' -> '+sonuc.harekettipi)
+						$('.aracekbilgi').show(sonuc);
+					}
+			})
 		},
 		function (error) {
 			alert("Scanning failed: " + error);
